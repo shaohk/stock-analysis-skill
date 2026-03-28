@@ -18,6 +18,24 @@
 5. 监管环境：证监会对该行业的监管态度
 6. 主题/概念热度：该股涉及的主题是否处于风口
 
+【数据获取】
+tushare 提供宏观和北向资金数据：
+
+```bash
+# 获取北向资金情况
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 获取 CPI/PMI 宏观数据
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+```
+
+核心接口：
+- `moneyflow_hsgt`：北向资金流向
+- `cn_cpi`：居民消费价格指数
+- `cn_ppi`：工业生产者出厂价格指数
+- `cn_pmi`：制造业采购经理指数
+
+政策解读以 WebSearch 为主，tushare 提供数据支撑。
+
 【中国特色考虑】
 - 涨跌停板限制对交易策略的影响
 - ST股票的特殊风险和机会

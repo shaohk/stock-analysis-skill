@@ -23,6 +23,21 @@
 - 提供预期波动幅度（%）
 - 报告末尾附上 Markdown 表格
 
+【数据获取】
+tushare 可提供公告和部分新闻数据，但**实时财经新闻建议以 WebSearch 为主**：
+
+```bash
+# 获取公司公告（近30天）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+```
+
+核心接口：
+- `anns_d`：公司公告
+- `news`：财经新闻（注意积分限制）
+- `research_report`：券商研报
+
+新闻时效性要求高，WebSearch 获取实时信息更可靠，两者结合使用。
+
 【禁止事项】
 - 不能只说"关注消息面变化"
 - 不能对新闻影响避而不谈

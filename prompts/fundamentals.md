@@ -23,6 +23,23 @@
 - 判断当前股价是被低估还是高估
 - 给出具体的买入区间价格
 
+【数据获取】
+优先使用 tushare 获取财务和估值数据：
+
+```bash
+# 获取营收、净利润（近8个季度 + 最新年度）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 获取 ROE、毛利率、净利率、PE、PB 等指标
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+```
+
+核心接口：
+- `income`：营收、净利润、毛利
+- `fina_indicator`：ROE、毛利率、净利率、资产负债率
+- `daily_basic`：实时 PE、PB、换手率
+
+若 tushare 数据不可得，使用 WebSearch 补充公司公告和财报信息。
+
 【禁止事项】
 - 不能不给出具体数字
 - 不能只用"估值合理"一笔带过

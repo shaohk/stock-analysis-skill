@@ -23,6 +23,25 @@
 - 给出仓位建议（高仓位/标准仓位/低仓位/空仓）
 - 分析该股与大盘的相对强弱
 
+【数据获取】
+优先使用 tushare 获取大盘指数和资金流向：
+
+```bash
+# 获取大盘指数走势（上证/深证/创业板）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 获取板块涨跌（申万行业）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+```
+
+核心接口：
+- `index_daily`：上证指数、深证成指、创业板指日线
+- `sw_daily`：申万行业指数日线
+- `moneyflow`：个股主力资金流向
+- `moneyflow_hsgt`：北向资金每日流向
+- `limit_list_d`：涨停/跌停股票列表
+
+若 tushare 数据不完整，使用 WebSearch 补充大盘和板块信息。
+
 【禁止事项】
 - 不能脱离大盘谈个股
 - 不能忽视系统性风险

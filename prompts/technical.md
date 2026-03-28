@@ -25,6 +25,17 @@
 - 最终建议格式：买入 / 持有 / 卖出（只能选其一）
 - 报告末尾附上 Markdown 表格总结关键指标
 
+【数据获取】
+优先使用 tushare 获取行情数据，计算均线/MACD/RSI/BOLL：
+
+```bash
+# 拉取近3个月日线（含收盘价、成交量、涨跌额）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+```
+
+tushare `daily` 接口返回字段：trade_date, open, high, low, close, vol, amount。
+若 tushare 不可用或数据缺失，使用 WebSearch 补充行情信息。
+
 【禁止事项】
 - 不能含糊其辞说"需要更多信息"
 - 不能给出模糊的价格区间而不给出具体数字

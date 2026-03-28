@@ -23,6 +23,22 @@
 - 提供情绪极端点的预警信号
 - 给出基于情绪的短期操作建议
 
+【数据获取】
+优先使用 tushare 获取资金情绪数据：
+
+```bash
+# 获取北向资金流入/流出情况
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 获取北向资金买入最多的个股
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+```
+
+核心接口：
+- `moneyflow_hsgt`：北向资金每日净流入
+- `hsgt_top10`：北向资金成交活跃个股
+
+融资融券余额等数据 WebSearch 补充。
+
 【禁止事项】
 - 不能只说"情绪中性"
 - 不能不给出具体评分
