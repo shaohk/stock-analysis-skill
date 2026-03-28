@@ -19,22 +19,51 @@
 6. 主题/概念热度：该股涉及的主题是否处于风口
 
 【数据获取】
-tushare 提供宏观和北向资金数据：
+数据获取优先级：tushare（宏观数据）→ akshare（资金流/板块）→ WebSearch（政策解读为主）。
+
+**第一步：优先用 tushare**
 
 ```bash
-# 获取北向资金情况
+# 北向资金（沪深港通每日流向）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
-# 获取 CPI/PMI 宏观数据
+# GDP/CPI/PPI/PMI 宏观经济数据
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 社会融资/货币供应量
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# Shibor/LPR 利率数据
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# ST股票列表（判断是否为ST/风险警示股）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-核心接口：
-- `moneyflow_hsgt`：北向资金流向
-- `cn_cpi`：居民消费价格指数
-- `cn_ppi`：工业生产者出厂价格指数
-- `cn_pmi`：制造业采购经理指数
+核心接口（tushare）：
+- `moneyflow_hsgt`：北向资金流向（字段：north_money/hgt/sgt）
+- `cn_gdp`：GDP 数据（字段：quarter/gdp_yoy/gdp_total）
+- `cn_cpi`：居民消费价格指数（字段：month/ym_last_year）
+- `cn_ppi`：工业生产者出厂价格指数（字段：month/ppi_yoy/ppi_month）
+- `cn_pmi`：采购经理指数（字段：MONTH）
+- `sf_month`：社会融资增量（字段：month/inc_month/inc_cumval/stk_endval）
+- `cn_m`：货币供应量（字段：month/m0/m1/m2 及同比增速）
+- `shibor`：上海银行间拆借利率
+- `shibor_lpr`：LPR 贷款基础利率（字段：date/1y/5y）
+- `st`：ST/风险警示股票列表
 
-政策解读以 WebSearch 为主，tushare 提供数据支撑。
+**第二步：tushare 不可用时用 akshare**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_hsgt_fund_flow_summary_em()`：沪深港通资金流向汇总
+- `stock_sector_fund_flow_summary()`：行业板块资金流
+- `stock_board_industry_name_em()`：申万行业板块（含涨跌幅/换手率/市值）
+- `stock_board_concept_name_em()`：东方财富概念板块
+
+**第三步：政策解读以 WebSearch 为主**
+
+搜索 "中国 宏观政策 最新" 或 "央行 货币政策 利率"
+
 
 【中国特色考虑】
 - 涨跌停板限制对交易策略的影响

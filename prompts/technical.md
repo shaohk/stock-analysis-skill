@@ -26,15 +26,43 @@
 - 报告末尾附上 Markdown 表格总结关键指标
 
 【数据获取】
-优先使用 tushare 获取行情数据，计算均线/MACD/RSI/BOLL：
+数据获取优先级：tushare（首选）→ akshare（备用）→ WebSearch（补充）。
+
+**第一步：优先用 tushare**
 
 ```bash
-# 拉取近3个月日线（含收盘价、成交量、涨跌额）
+# 近3个月日线（计算均线/MACD/RSI/BOLL）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 实时行情
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 周线/月线（判断中期/长期趋势）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-tushare `daily` 接口返回字段：trade_date, open, high, low, close, vol, amount。
-若 tushare 不可用或数据缺失，使用 WebSearch 补充行情信息。
+核心接口（tushare）：
+- `daily`：日线行情，含 open/high/low/close/vol/amount/pct_chg
+- `weekly` / `monthly`：周线/月线（判断中期/长期趋势）
+- `adj_factor`：复权因子（计算真实收益率）
+- `pro_bar`：复权行情（前后复权可选）
+- `daily_basic`：每日指标，含换手率、PE、PB、市值等
+- `index_daily`：大盘指数（上证/深证/创业板）用于判断大盘趋势
+
+**第二步：tushare 不可用时用 akshare**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_zh_a_hist(symbol, period="daily")`：日线行情（前复权/后复权/不复权）
+- `stock_zh_a_spot_em()`：全市场实时行情（含价格/涨跌幅/成交量）
+- `stock_zh_a_hist(symbol, period="daily", start_date, end_date)`：历史日线
+- `stock_zh_a_hist(symbol, period="weekly/monthly")`：周线/月线
+- `stock_zh_a_hist(symbol, index_code)`：大盘指数（如 '000001' 上证指数）
+
+**第三步：均不可用时 WebSearch 补充**
+
+搜索 "股票 {{TICKER}} 今日股价" 或 "K线 均线 技术分析"
 
 【禁止事项】
 - 不能含糊其辞说"需要更多信息"

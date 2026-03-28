@@ -19,16 +19,35 @@
 6. KOL影响力评估：各观点的传播力度
 
 【数据获取】
-舆情数据以 WebSearch 为主（雪球/东财股吧/KOL观点），tushare 仅作补充：
+数据获取优先级：WebSearch 为主（舆情时效性强），akshare（个股新闻）为辅。
+
+**第一步：以 WebSearch 为主**
+
+舆情时效性极强，WebSearch 是最及时、最全面的来源：
+- 搜索 "雪球 {{TICKER}} 讨论"
+- 搜索 "东方财富股吧 {{TICKER}}"
+- 搜索 "同花顺 {{TICKER}} 热度"
+- 搜索 "微博 {{TICKER}} 财经大V"
+- 搜索 "知乎 {{TICKER}} 投资"
+
+**第二步：akshare 补充新闻和公告**
 
 ```bash
-# 获取公司相关新闻（补充来源）
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `news_cctv()`：央视财经新闻（权威来源，可追踪政策信号）
+- `stock_news_em(symbol)`：个股新闻（东方财富来源）
+
+**第三步：tushare 公告补充**
+
+```bash
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-核心接口：
-- `news`：财经新闻（注意积分限制）
-- `anns_d`：公司公告（可反映舆情来源）
+核心接口（tushare）：
+- `anns_d`：上市公司公告（注意积分权限）
 
 【重点关注平台】
 - 财经新闻：财联社、新浪财经、东方财富、腾讯财经

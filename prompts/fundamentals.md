@@ -24,21 +24,56 @@
 - 给出具体的买入区间价格
 
 【数据获取】
-优先使用 tushare 获取财务和估值数据：
+数据获取优先级：tushare（首选）→ akshare（备用）→ WebSearch（补充）。
+
+**第一步：优先用 tushare**
 
 ```bash
-# 获取营收、净利润（近8个季度 + 最新年度）
+# 利润表（营收/净利润近8期）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
-# 获取 ROE、毛利率、净利率、PE、PB 等指标
+# 资产负债表
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 现金流量表
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 财务指标（ROE/毛利率/净利率/资产负债率/每股收益）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 每日指标（PE/PB/换手率/市值）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 业绩预告/快报、主营业务构成、分红送股
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 公司基本信息（了解公司背景）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-核心接口：
-- `income`：营收、净利润、毛利
-- `fina_indicator`：ROE、毛利率、净利率、资产负债率
-- `daily_basic`：实时 PE、PB、换手率
+核心接口（tushare）：
+- `income`：营收、净利润、毛利率（字段：total_revenue/revenue/n_income/grossprofit_margin）
+- `balancesheet`：资产负债（字段：total_assets/total_liab/total_hldr_eqy_exc_min_int）
+- `cashflow`：现金流（字段：n_cashflow_act/n_cashflow_inv_act/n_cashflow_fnc_act）
+- `fina_indicator`：财务指标（字段：roe/grossprofit_margin/netprofit_margin/debt_to_assets/eps/bps）
+- `daily_basic`：每日指标（字段：pe_ttm/pb/ps_ttm/circ_mv/turnover_rate）
+- `express`：业绩快报
+- `forecast`：业绩预告
+- `dividend`：分红送股
+- `fina_mainbz`：主营业务构成（按行业/地区/产品）
+- `stock_company`：公司基本信息
 
-若 tushare 数据不可得，使用 WebSearch 补充公司公告和财报信息。
+**第二步：tushare 不可用时用 akshare**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_financial_analysis_indicator(symbol, start_year)`：财务指标（极详细，几十项）
+- `stock_financial_abstract(symbol)`：财务摘要
+- `stock_profit_sheet_by_report_em(symbol)`：利润表
+- `stock_balance_sheet_by_report_em(symbol)`：资产负债表
+- `stock_cash_flow_sheet_by_report_em(symbol)`：现金流量表
+- `stock_a_all_pb()`：全市场 PB/PE（含目标股票）
+
+**第三步：均不可用时 WebSearch**
+
+搜索 "股票 {{TICKER}} 2024年报 营收 净利润" 或 "公司财报 毛利率 ROE"
 
 【禁止事项】
 - 不能不给出具体数字

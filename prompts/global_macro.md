@@ -61,18 +61,45 @@
    - 欧洲经济衰退风险的外溢效应
 
 【数据获取】
-以 WebSearch 为主获取全球宏观数据：
+数据获取优先级：WebSearch（政策/事件为主）→ tushare（宏观数据）→ akshare（资金流补充）。
 
-```bash
-# 搜索相关全球宏观数据
-# 参考来源：IMF/世界银行/WTO官网、央行官网、华尔街日报/金融时报/路透社
-```
+**第一步：以 WebSearch 为主获取政策/事件数据**
 
 核心关注：
-- 宏观数据：世界银行 IMF WTO 各季度报告
+- 宏观数据：IMF/世界银行/WTO 各季度报告
 - 政策解读：美联储/欧央行/中国人民银行声明
-- 地缘政治：权威国际媒体实时报道
+- 地缘政治：权威国际媒体实时报道（路透社/金融时报/华尔街日报）
 - 行业影响：胡润/福布斯/麦肯锡/高盛研究报告
+- 搜索 "美联储 利率 决议 最新"
+- 搜索 "中美贸易 关税 最新"
+- 搜索 "人民币 汇率 美元"
+
+**第二步：tushare 获取中国宏观数据**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+```
+
+核心接口（tushare）：
+- `cn_gdp`：GDP 数据（判断经济增速）
+- `cn_cpi`：CPI 数据（通胀水平）
+- `cn_ppi`：PPI 数据（工业通胀/通缩）
+- `cn_pmi`：PMI 数据（制造业/服务业景气度）
+- `sf_month`：社会融资增量（信用周期）
+- `cn_m`：货币供应量 M0/M1/M2（流动性指标）
+- `shibor`：银行间拆借利率（资金面松紧）
+- `shibor_lpr`：LPR 基准利率（货币政策信号）
+- `moneyflow_hsgt`：北向资金（国际资金流向中国）
+
+**第三步：akshare 补充资金流数据**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_hsgt_fund_flow_summary_em()`：沪深港通资金流向（北向资金参考）
+- 北向资金反映国际投资者对中国市场的情绪，可辅助判断全球宏观影响
 
 【强制输出要求】
 - 量化评估每个维度对该股的影响方向（利好/利空/中性）

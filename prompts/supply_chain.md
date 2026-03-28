@@ -67,30 +67,52 @@
    - 产业链转移案例（离开中国/进入中国）
 
 【数据获取】
-tushare提供部分产业链数据，WebSearch补充行业研究：
+数据获取优先级：WebSearch（行业研究为主）→ tushare（公司财务/主营）→ akshare（财务指标补充）。
+
+**第一步：以 WebSearch 为主获取行业产业链数据**
+
+产业链分析需要大量行业研究报告和公开资料：
+- 搜索 "XXX行业 产业链结构"
+- 搜索 "XXX上市公司 供应商 客户"
+- 搜索 "XXX原材料 价格走势"
+- 搜索 "XXX行业 竞争格局"
+- 行业协会报告、上市公司年报中的产业链描述
+- 胡润/福布斯/麦肯锡/高盛/中金公司行业研究报告
+
+**第二步：tushare 获取公司财务和主营构成**
 
 ```bash
-# 基本公司信息
-cd /Users/shaohk/.claude/skills/stock-analysis && uv run python -c "
-import os
-import tushare as ts
-token = os.getenv('TUSHARE_TOKEN')
-api_url = os.getenv('TUSHARE_URL')
-pro = ts.pro_api(token)
-pro._DataApi__http_url = api_url
-# 公司基本信息
-df = pro.stock_company(ts_code='{{TICKER}}')
-print('=== 公司信息 ===')
-print(df.to_string())
-"
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-WebSearch 搜索：
-- "XXX行业产业链结构"
-- "XXX上市公司 供应商 客户"
-- "XXX原材料价格走势"
-- "XXX行业竞争格局"
-- 行业协会报告、上市公司年报中的产业链描述
+核心接口（tushare）：
+- `stock_company`：公司基本信息（了解主营业务/行业地位）
+- `fina_mainbz`：主营业务构成（按行业/产品/地区拆分营收占比）
+- `income`：利润表（判断上下游结算周期和议价能力）
+- `balancesheet`：资产负债表（应收/应付/存货判断供应链地位）
+- `fina_indicator`：财务指标（判断盈利能力和资产质量）
+
+**第三步：akshare 补充详细财务指标**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_financial_analysis_indicator(symbol, start_year)`：财务指标（几十项，极详细）
+- `stock_financial_abstract(symbol)`：财务摘要（多期对比）
+- `stock_profit_sheet_by_report_em(symbol)`：利润表
+- `stock_balance_sheet_by_report_em(symbol)`：资产负债表
+- `stock_cash_flow_sheet_by_report_em(symbol)`：现金流量表
+
+**第四步：行业板块资金流辅助判断**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_sector_fund_flow_summary()`：行业板块资金流（判断上下游景气度）
 
 【强制输出要求】
 - 必须识别出公司前3大原材料及其价格驱动因素

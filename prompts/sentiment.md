@@ -24,20 +24,52 @@
 - 给出基于情绪的短期操作建议
 
 【数据获取】
-优先使用 tushare 获取资金情绪数据：
+数据获取优先级：tushare（首选）→ akshare（备用）→ WebSearch（补充）。
+
+**第一步：优先用 tushare**
 
 ```bash
-# 获取北向资金流入/流出情况
+# 北向资金（沪深港通每日流向）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
-# 获取北向资金买入最多的个股
+# 北向资金成交活跃个股Top10
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 个股资金流向（主力/大单）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 融资融券汇总/明细
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 龙虎榜（机构/游资情绪）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 龙虎榜机构明细
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 股东人数变化
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-核心接口：
-- `moneyflow_hsgt`：北向资金每日净流入
-- `hsgt_top10`：北向资金成交活跃个股
+核心接口（tushare）：
+- `moneyflow_hsgt`：北向资金流向（字段：north_money/hgt/sgt/ggt_ss/ggt_sz）
+- `hsgt_top10`：北向资金成交活跃个股（SH/SZ/HK市场）
+- `moneyflow`：个股资金流向（字段：buy_lg_amount/sell_lg_amount/net_mf_amount）
+- `margin`：融资融券汇总（字段：RZYE/RZRQYE/RZMRE）
+- `margin_detail`：融资融券明细（字段：RZYE/RZMRE/RZCHE）
+- `top_list`：龙虎榜每日明细（字段：pct_change/amount/reason）
+- `top_inst`：龙虎榜机构明细（字段：side/buy_amount/sell_amount）
+- `stk_holdernumber`：股东人数变化
 
-融资融券余额等数据 WebSearch 补充。
+**第二步：tushare 不可用时用 akshare**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_individual_fund_flow(stock, market)`：个股资金流（主力/超大单/大单/中单/小单净流入）
+- `stock_hsgt_fund_flow_summary_em()`：沪深港通资金流向汇总
+- `macro_china_market_margin_sh()`：沪市融资融券
+- `macro_china_market_margin_sz()`：深市融资融券
+
+**第三步：均不可用时 WebSearch**
+
+搜索 "融资融券 余额 {{TICKER}}" 或 "北向资金 今日 买入"
 
 【禁止事项】
 - 不能只说"情绪中性"

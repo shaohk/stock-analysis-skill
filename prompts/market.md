@@ -24,23 +24,52 @@
 - 分析该股与大盘的相对强弱
 
 【数据获取】
-优先使用 tushare 获取大盘指数和资金流向：
+数据获取优先级：tushare（首选）→ akshare（备用）→ WebSearch（补充）。
+
+**第一步：优先用 tushare**
 
 ```bash
-# 获取大盘指数走势（上证/深证/创业板）
+# 大盘指数走势（上证/深证/创业板）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
-# 获取板块涨跌（申万行业）
+# 个股资金流向（主力/大单/小单）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 北向资金（沪深港通每日流向）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 涨跌停/炸板数据
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 申万行业分类和成分股
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 同花顺概念板块
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-核心接口：
-- `index_daily`：上证指数、深证成指、创业板指日线
+核心接口（tushare）：
+- `index_daily`：大盘指数日线（字段：trade_date/close/pct_chg/vol/amount）
 - `sw_daily`：申万行业指数日线
-- `moneyflow`：个股主力资金流向
-- `moneyflow_hsgt`：北向资金每日流向
-- `limit_list_d`：涨停/跌停股票列表
+- `index_classify`：申万行业分类（L1/L2/L3）
+- `index_member_all`：申万成分股
+- `ths_index`：同花顺概念板块
+- `ths_member`：同花顺概念成分股
+- `moneyflow`：个股资金流向（字段：buy_lg_amount/sell_lg_amount/net_mf_amount）
+- `moneyflow_hsgt`：北向资金流向（字段：north_money/hgt/sgt）
+- `limit_list_d`：涨跌停/炸板数据（字段：pct_chg/up_stat/limit）
 
-若 tushare 数据不完整，使用 WebSearch 补充大盘和板块信息。
+**第二步：tushare 不可用时用 akshare**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `stock_zh_a_hist(symbol, period="daily")`：日线行情
+- `stock_board_industry_name_em()`：申万行业板块（含涨跌幅/换手率/市值）
+- `stock_board_concept_name_em()`：东方财富概念板块
+- `stock_individual_fund_flow(stock, market)`：个股资金流
+- `stock_hsgt_fund_flow_summary_em()`：北向资金流向
+
+**第三步：均不可用时 WebSearch**
+
+搜索 "大盘 上证指数 今日" 或 "行业板块 资金流向"
 
 【禁止事项】
 - 不能脱离大盘谈个股

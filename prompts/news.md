@@ -24,19 +24,39 @@
 - 报告末尾附上 Markdown 表格
 
 【数据获取】
-tushare 可提供公告和部分新闻数据，但**实时财经新闻建议以 WebSearch 为主**：
+数据获取优先级：tushare（公告/研报）→ akshare（新闻）→ WebSearch（实时信息，主要来源）。
+
+**第一步：优先用 tushare（公告/研报）**
 
 ```bash
-# 获取公司公告（近30天）
+# 公司公告（近30天）
+uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
+# 券商研究报告（注意积分限制，每天最多5次）
 uv run ~/.claude/skills/stock-analysis/scripts/stock_data_demo.py
 ```
 
-核心接口：
-- `anns_d`：公司公告
-- `news`：财经新闻（注意积分限制）
-- `research_report`：券商研报
+核心接口（tushare）：
+- `anns_d`：上市公司公告（含公告标题/类别/日期），注意积分权限
+- `research_report`：券商研究报告（含机构名称/发布日期），注意积分限制
 
-新闻时效性要求高，WebSearch 获取实时信息更可靠，两者结合使用。
+**第二步：tushare 不可用或不足时用 akshare（新闻）**
+
+```bash
+uv run ~/.claude/skills/stock-analysis/scripts/akshare_data_demo.py
+```
+
+核心接口（akshare）：
+- `news_cctv()`：央视财经新闻（权威来源）
+- `stock_news_em(symbol)`：个股新闻（东方财富来源）
+- `stock_announcement_szse(symbol)`：深交所公告
+- `stock_announcement_sse(symbol)`：上交所公告
+
+**第三步：实时财经新闻以 WebSearch 为主**
+
+新闻时效性高，WebSearch 获取最及时：
+- 搜索 "股票 {{TICKER}} 最新新闻"
+- 搜索 " {{TICKER}} 公告 今日"
+- 关注：财联社、同花顺、东方财富、雪球
 
 【禁止事项】
 - 不能只说"关注消息面变化"
