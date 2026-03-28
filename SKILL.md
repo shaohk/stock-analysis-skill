@@ -1,6 +1,6 @@
 ---
 name: stock-analysis
-description: 多Agent股票分析框架 — 输入股票代码，经过13个专业Agent协作，输出最终投资报告
+description: 多Agent股票分析框架 — 支持全流程（15个Agent协作）和指定分析师独立分析两种模式
 allowed-tools: Agent, Read, Write, Glob, Bash, WebSearch, WebFetch
 credentials:
   - name: TUSHARE_TOKEN
@@ -24,7 +24,7 @@ requirements:
 
 # Stock Analysis 多Agent股票分析框架
 
-通过 Claude Code 的 Agent tool 编排 13 个专业 Subagent，输出最终投资报告。
+通过 Claude Code 的 Agent tool 编排 15 个专业 Subagent，输出最终投资报告。支持全流程分析和指定分析师独立分析两种模式。
 
 ## 快速开始
 
@@ -36,8 +36,30 @@ requirements:
 
 ## 使用示例
 
+### 全流程分析（默认）
 - "分析 600519"（A股茅台）
 - "分析 00700.HK"（港股腾讯）
+- "全流程分析 000564"
+
+### 指定分析师分析（独立运行）
+- "技术分析 600519"
+- "只跑基本面和情绪分析师 000564"
+- "新闻分析师 00700.HK"
+- "全球宏观和产业链分析师分析 600519"
+
+**分析师简称对照：**
+
+| 简称 | 分析师 |
+|------|--------|
+| 技术 | 技术分析师 |
+| 新闻/消息面 | 新闻分析师 |
+| 市场/大盘 | 市场分析师 |
+| 基本面/财务 | 基本面分析师 |
+| 情绪/资金情绪 | 情绪分析师 |
+| 中国/国内市场 | 中国市场分析师 |
+| 社媒/舆情/社交 | 社交媒体分析师 |
+| 全球/宏观 | 全球宏观分析师 |
+| 产业链/上下游 | 上下游产业链分析师 |
 
 ## 架构说明
 
@@ -53,7 +75,7 @@ requirements:
 - 详见各分析师 prompt 中的【数据获取】段落
 
 **分析流程：**
-1. Phase 1: 7个分析师并行（技术/新闻/市场/基本面/情绪/中国/社媒）
+1. Phase 1: 9个分析师并行（技术/新闻/市场/基本面/情绪/中国/社媒/全球宏观/产业链）
 2. Phase 2: 多头/空头研究员辩论
 3. Phase 3: 激进/中性/保守风险分析师辩论
 4. Phase 4: 风险经理综合评估
@@ -80,6 +102,8 @@ requirements:
     ├── sentiment.md            # 情绪分析师 prompt
     ├── china.md                # 中国市场分析师 prompt
     ├── social_media.md         # 社交媒体分析师 prompt
+    ├── global_macro.md         # 全球宏观分析师 prompt
+    ├── supply_chain.md         # 上下游产业链分析师 prompt
     ├── bull.md                 # 多头研究员 prompt
     ├── bear.md                 # 空头研究员 prompt
     ├── aggressive.md           # 激进分析师 prompt

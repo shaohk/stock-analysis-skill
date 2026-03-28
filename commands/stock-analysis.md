@@ -1,11 +1,11 @@
 ---
-description: 多Agent股票分析框架 — 输入股票代码，经过13个专业Agent协作，输出最终投资报告
+description: 多Agent股票分析框架 — 输入股票代码，经过15个专业Agent协作，输出最终投资报告；也支持指定单个或多个分析师独立运行
 allowed-tools: Agent, Read, Write, Glob, Bash, WebSearch, WebFetch
 ---
 
 # Stock Analysis 多Agent股票分析框架
 
-通过 Claude Code 的 Agent tool 编排 13 个专业 Subagent，输出最终投资报告。
+通过 Claude Code 的 Agent tool 编排 15 个专业 Subagent，输出最终投资报告。
 
 ## ⚠️ 数据真实性 + 时效性约束（最高优先级）
 
@@ -20,11 +20,85 @@ allowed-tools: Agent, Read, Write, Glob, Bash, WebSearch, WebFetch
 
 ---
 
-## 使用方法
+## 运行模式
 
-用户输入股票代码后，按照以下流程执行：
+本框架支持两种运行模式，用户可根据需要选择：
 
-## 执行流程
+### 模式一：全流程分析（默认）
+
+运行完整分析流程：Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+
+**触发方式：**
+- "分析 600519"
+- "全流程分析 000564"
+- "完整分析 00700.HK"
+
+**执行方式：**
+1. 创建目录 `/tmp/stock-analysis/{{TICKER}}/reports`
+2. Phase 1 并行启动全部 9 个分析师
+3. Phase 2 并行启动多头/空头研究员
+4. Phase 3 并行启动激进/中性/保守分析师
+5. Phase 4 串行执行风险经理
+6. Phase 5 串行执行研究经理
+7. Phase 6 串行执行交易员
+8. 输出最终报告路径
+
+---
+
+### 模式二：指定分析师分析（独立运行）
+
+只运行用户指定的单个或多个分析师，产出对应报告后结束，不进入后续 Phase。
+
+**触发方式：**
+- "技术分析 600519"
+- "只跑基本面和情绪分析师 000564"
+- "新闻分析师 00700.HK"
+- "全球宏观和产业链分析师分析 600519"
+- "做一下技术分析和基本面分析"
+
+**分析师简称对照表：**
+
+| 简称 | 分析师 | Prompt 文件 |
+|------|--------|------------|
+| 技术 | 技术分析师 | `technical.md` |
+| 新闻/消息面 | 新闻分析师 | `news.md` |
+| 市场/大盘 | 市场分析师 | `market.md` |
+| 基本面/财务 | 基本面分析师 | `fundamentals.md` |
+| 情绪/资金情绪 | 情绪分析师 | `sentiment.md` |
+| 中国/国内市场 | 中国市场分析师 | `china.md` |
+| 社媒/舆情/社交 | 社交媒体分析师 | `social_media.md` |
+| 全球/宏观 | 全球宏观分析师 | `global_macro.md` |
+| 产业链/上下游 | 上下游产业链分析师 | `supply_chain.md` |
+
+**执行方式：**
+1. 解析用户指定的分析师列表
+2. 确认标的代码 `{{TICKER}}`
+3. 创建目录：`mkdir -p /tmp/stock-analysis/{{TICKER}}/reports`
+4. 并行启动被指定的分析师 Agent（每个 Agent 独立运行，互不依赖）
+5. 各 Agent 完成后将报告保存到对应文件（路径见下表）
+6. 汇总所有完成报告的路径，告知用户
+
+**独立分析师报告路径：**
+| 分析师 | 报告文件 |
+|--------|---------|
+| 技术分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/technical.md` |
+| 新闻分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/news.md` |
+| 市场分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/market.md` |
+| 基本面分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/fundamentals.md` |
+| 情绪分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/sentiment.md` |
+| 中国市场分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/china.md` |
+| 社交媒体分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/social_media.md` |
+| 全球宏观分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/global_macro.md` |
+| 上下游产业链分析师 | `/tmp/stock-analysis/{{TICKER}}/reports/supply_chain.md` |
+
+**执行方式示例：**
+- 用户说"技术分析 600519"→ 只启动技术分析师，保存至 `technical.md`
+- 用户说"基本面和情绪分析师 000564"→ 并行启动这2个分析师，分别保存
+- 用户说"全球宏观分析师"→ 只启动全球宏观分析师
+
+---
+
+## 执行流程（模式一：全流程）
 
 ### 初始化
 
@@ -33,9 +107,9 @@ allowed-tools: Agent, Read, Write, Glob, Bash, WebSearch, WebFetch
 
 ---
 
-### Phase 1: 分析师层（7个 Agent 并行）
+### Phase 1: 分析师层（9个 Agent 并行）
 
-使用 Agent tool 并行启动 7 个分析师 Agent。
+使用 Agent tool 并行启动 9 个分析师 Agent。
 
 **每个 Agent 的 prompt 从对应文件读取：**
 - 技术分析师: `~/.claude/skills/stock-analysis/prompts/technical.md`
@@ -45,10 +119,12 @@ allowed-tools: Agent, Read, Write, Glob, Bash, WebSearch, WebFetch
 - 情绪分析师: `~/.claude/skills/stock-analysis/prompts/sentiment.md`
 - 中国市场分析师: `~/.claude/skills/stock-analysis/prompts/china.md`
 - 社交媒体分析师: `~/.claude/skills/stock-analysis/prompts/social_media.md`
+- 全球宏观分析师: `~/.claude/skills/stock-analysis/prompts/global_macro.md`
+- 上下游产业链分析师: `~/.claude/skills/stock-analysis/prompts/supply_chain.md`
 
 **执行方式：**
 ```
-在一次消息中调用 7 个 Agent tool，实现并行执行
+在一次消息中调用 9 个 Agent tool，实现并行执行
 每个 Agent 的 prompt 中将 {{TICKER}} 替换为实际股票代码
 ```
 
@@ -60,14 +136,14 @@ allowed-tools: Agent, Read, Write, Glob, Bash, WebSearch, WebFetch
 
 **前提条件：** Phase 1 全部完成
 
-**构建上下文：** 读取 Phase 1 的 7 份报告，合并作为 context
+**构建上下文：** 读取 Phase 1 的 9 份报告，合并作为 context
 
 **Agent 列表：**
 - 多头研究员: `~/.claude/skills/stock-analysis/prompts/bull.md`
 - 空头研究员: `~/.claude/skills/stock-analysis/prompts/bear.md`
 
 **执行方式：**
-- 读取 7 份分析师报告内容
+- 读取 9 份分析师报告内容
 - 将报告内容插入 prompt 的 `{{CONTEXT}}` 占位符
 - 并行启动 2 个 Agent
 
@@ -144,14 +220,4 @@ allowed-tools: Agent, Read, Write, Glob, Bash, WebSearch, WebFetch
 2. **上下文传递**：后续 Phase 必须读取前面所有报告作为 context
 3. **文件持久化**：每个 Agent 完成后将报告写入对应文件
 4. **进程安全**：使用 Agent tool 而非 subprocess，由 Claude Code 内核管理进程
-
-## 示例执行
-
-当用户说"分析 600519"时：
-
-1. 创建目录 `/tmp/stock-analysis/600519/reports`
-2. 并行启动 7 个分析师 Agent
-3. 等待完成，读取报告，并行启动多头/空头研究员
-4. 等待完成，读取报告，并行启动激进/中性/保守分析师
-5. 串行执行风险经理 → 研究经理 → 交易员
-6. 输出最终报告路径
+5. **模式识别**：根据用户输入判断是全流程还是指定分析师，独立分析师模式下不自动进入后续 Phase
